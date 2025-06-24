@@ -1,5 +1,5 @@
 import React from 'react'
-import groupPic from '../assets/group_profiles.png'
+
 import arrow from '../assets/arrow_icon.svg'
 import headImg from '../assets/header_img.png'
 
@@ -13,7 +13,7 @@ const Header = () => {
                 Book Appointment <br/> With Trusted Pathologists
             </p>
             <div className='flex flex-col md:flex-row items-center gap-3 text-white text-sm font-tight'>
-                <img className='w-28' src={groupPic} alt="" />
+                
                 <p>Simply browse through our extensive list of various tests, <br className='hidden sm:block'/> schedule your appointment hassle-free.</p>
                 </div>
                 <a href="#category" className='flex items-center gap-2 bg-white px-8 py-3 rounded-full text-gray-600 text-sm m-auto md:m-0 hover:scale-105 transition-all duration-300'>Book appointment 
