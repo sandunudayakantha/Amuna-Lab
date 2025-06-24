@@ -1,5 +1,5 @@
 import React from 'react'
-import groupPic from '../assets/group_Profiles.png'
+import groupPic from '../assets/group_profiles.png'
 import arrow from '../assets/arrow_icon.svg'
 import headImg from '../assets/header_img.png'
 
