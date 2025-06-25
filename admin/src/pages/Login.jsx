@@ -69,7 +69,7 @@ const Login = () => {
                 <p className='text-2xl font-semibold m-auto'><span className='text-primary'>{state}</span> Login</p>
                 
                 <div className='w-full'>
-                    <p>Email</p>
+                    <p>Email (Demo - admin@smartlab.com)</p>
                     <input 
                         onChange={(e) => setEmail(e.target.value)} 
                         value={email} 
@@ -80,7 +80,7 @@ const Login = () => {
                 </div>
                 
                 <div className='w-full'>
-                    <p>Password</p>
+                    <p>Password (Demo - Shewon123)</p>
                     <input 
                         onChange={(e) => setPassword(e.target.value)} 
                         value={password} 
