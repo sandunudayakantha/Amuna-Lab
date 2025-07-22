@@ -99,10 +99,10 @@ const CreateInvoice = () => {
         }
 
         searchTimeoutRef.current = setTimeout(() => {
-            if (searchTerm && searchTerm.trim()) {
+            if (searchTerm && searchTerm.trim().length >= 2) {
                 searchTestTemplates();
             } else {
-                setFilteredTests(testTemplates);
+                setFilteredTests([]); // Do not show any results if searchTerm is too short
             }
         }, 500); // Increased debounce time
 
@@ -111,7 +111,7 @@ const CreateInvoice = () => {
                 clearTimeout(searchTimeoutRef.current);
             }
         };
-    }, [searchTerm, testTemplates, isSearchFocused]);
+    }, [searchTerm, isSearchFocused]);
 
     // Debounce user search
     useEffect(() => {
@@ -435,6 +435,7 @@ const CreateInvoice = () => {
                 setSuccess('Invoice created successfully! Please complete the payment.');
             } else {
                 setSuccess('Invoice created successfully!');
+                navigate('/invoices'); // Navigate to InvoiceManager after creation
                 // Reset form for new invoice
                 setFormData({
                     userId: '',
@@ -588,6 +589,7 @@ const CreateInvoice = () => {
                                             inputValue={userSearchTerm}
                                             onInputChange={(event, newInputValue) => {
                                                 setUserSearchTerm(newInputValue);
+                                                setIsUserSearchFocused(true); // Ensure search is active while typing
                                             }}
                                             onFocus={() => setIsUserSearchFocused(true)}
                                             onBlur={() => {
@@ -599,7 +601,7 @@ const CreateInvoice = () => {
                                                     label="Search Users"
                                                     fullWidth
                                                     margin="normal"
-                                                    placeholder="Type at least 2 characters to search"
+                                                    placeholder="Type at least 2 characters to search by name"
                                                     error={!!userSearchError}
                                                     helperText={userSearchError}
                                             className="rounded-md"
@@ -729,89 +731,118 @@ const CreateInvoice = () => {
                             {/* Test Selection */}
                             <div className="bg-white rounded-lg shadow-md p-6">
                                 <h2 className="text-xl font-bold text-blue-600 mb-4">Test Selection</h2>
+                                <TextField
+                                    label="Search Tests"
+                                    fullWidth
+                                    margin="normal"
+                                    placeholder="Type at least 2 characters to search"
+                                    value={searchTerm}
+                                    onChange={e => setSearchTerm(e.target.value)}
+                                    onFocus={() => setIsSearchFocused(true)}
+                                    onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+                                    error={!!searchError}
+                                    helperText={searchError}
+                                    className="rounded-md"
+                                />
+                                {/* Real-time results area: only show if searchTerm has at least 2 characters */}
+                                {searchTerm.length >= 2 && (
+                                    <div className="mt-2 max-h-60 overflow-y-auto border rounded bg-gray-50">
                                         {loading ? (
-                                    <div className="flex justify-center p-6">
-                                        <CircularProgress />
-                                    </div>
+                                            <div className="flex justify-center p-6">
+                                                <CircularProgress />
+                                            </div>
                                         ) : (
-                                            <>
-                                                <Autocomplete
-                                                    options={filteredTests}
-                                                    getOptionLabel={(option) => 
-                                                        `${option.templateName} (${option.shortName}) - Rs. ${option.price}`
-                                                    }
-                                                    value={null}
-                                                    onChange={handleTestSelect}
-                                                    inputValue={searchTerm}
-                                                    onInputChange={(event, newInputValue) => {
-                                                        setSearchTerm(newInputValue);
-                                                    }}
-                                                    onFocus={() => setIsSearchFocused(true)}
-                                                    onBlur={() => {
-                                                        setTimeout(() => setIsSearchFocused(false), 200);
-                                                    }}
-                                                    renderInput={(params) => (
-                                                        <TextField
-                                                            {...params}
-                                                            label="Search Tests"
-                                                            fullWidth
-                                                            margin="normal"
-                                                            placeholder="Type at least 2 characters to search"
-                                                            error={!!searchError}
-                                                            helperText={searchError}
-                                                    className="rounded-md"
-                                                        />
-                                                    )}
-                                                    renderOption={(props, option) => (
-                                                <li key={option._id} {...props} className="p-2 hover:bg-gray-100">
-                                                            {option.templateName}
-                                                    <span className="text-gray-500 ml-2">
-                                                                ({option.shortName}) - Rs. {option.price}
-                                                    </span>
-                                                        </li>
-                                                    )}
-                                                    loading={loading}
-                                                    loadingText="Loading tests..."
-                                                    noOptionsText={searchError || "No tests found"}
-                                                    freeSolo={false}
-                                                    clearOnBlur={false}
-                                                    clearOnEscape={false}
-                                                    filterOptions={(options, state) => options}
-                                                    open={isSearchFocused}
-                                                />
-
-                                        <div className="mt-4 bg-white rounded-lg shadow-sm">
-                                                    <Table>
-                                                        <TableHead>
-                                                    <TableRow className="bg-blue-600">
-                                                        <TableCell className="font-bold text-white">Test Name</TableCell>
-                                                        <TableCell className="font-bold text-white">Short Name</TableCell>
-                                                        <TableCell className="font-bold text-white">Price</TableCell>
-                                                        <TableCell className="font-bold text-white">Action</TableCell>
-                                                            </TableRow>
-                                                        </TableHead>
-                                                        <TableBody>
-                                                            {selectedTests.map(test => (
-                                                        <TableRow key={test._id} className="hover:bg-gray-50">
-                                                                    <TableCell>{test.templateName}</TableCell>
-                                                                    <TableCell>{test.shortName}</TableCell>
-                                                                    <TableCell>Rs. {test.price}</TableCell>
-                                                                    <TableCell>
-                                                                <IconButton 
-                                                                    onClick={() => handleRemoveTest(test._id)}
-                                                                    className="text-red-500 hover:bg-red-50"
-                                                                >
-                                                                            <DeleteIcon />
-                                                                        </IconButton>
-                                                                    </TableCell>
-                                                                </TableRow>
-                                                            ))}
-                                                        </TableBody>
-                                                    </Table>
-                                        </div>
-                                            </>
+                                            filteredTests.length > 0 ? (
+                                                filteredTests.map(test => (
+                                                    <div
+                                                        key={test._id}
+                                                        className="p-2 cursor-pointer hover:bg-blue-100 border-b last:border-b-0 flex justify-between items-center"
+                                                        onClick={() => {
+                                                            if (!selectedTests.find(t => t._id === test._id)) {
+                                                                setSelectedTests([...selectedTests, test]);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <span>
+                                                            <span className="font-medium">{test.templateName}</span>
+                                                            <span className="text-gray-500 ml-2">({test.shortName}) - Rs. {test.price}</span>
+                                                        </span>
+                                                        {selectedTests.find(t => t._id === test._id) && (
+                                                            <Chip label="Selected" color="primary" size="small" />
+                                                        )}
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="p-2 text-gray-500">{searchError || "No tests found"}</div>
+                                            )
                                         )}
+                                    </div>
+                                )}
+                                {/* Selected tests table remains unchanged */}
+                                <div className="mt-4 bg-white rounded-lg shadow-sm">
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow className="bg-blue-600">
+                                                <TableCell className="font-bold text-white">Test Name</TableCell>
+                                                <TableCell className="font-bold text-white">Short Name</TableCell>
+                                                <TableCell className="font-bold text-white">Price</TableCell>
+                                                <TableCell className="font-bold text-white">Action</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {selectedTests.map(test => (
+                                                <TableRow key={test._id} className="hover:bg-gray-50">
+                                                    <TableCell>{test.templateName}</TableCell>
+                                                    <TableCell>{test.shortName}</TableCell>
+                                                    <TableCell>Rs. {test.price}</TableCell>
+                                                    <TableCell>
+                                                        <IconButton 
+                                                            onClick={() => handleRemoveTest(test._id)}
+                                                            className="text-red-500 hover:bg-red-50"
+                                                        >
+                                                            <DeleteIcon />
+                                                        </IconButton>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             </div>
+
+                            {/* Pending Tests Section */}
+                            {selectedTests.length > 0 && (
+                                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                                    <h2 className="text-xl font-bold text-blue-600 mb-4">Pending Tests for Invoice</h2>
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow className="bg-blue-600">
+                                                <TableCell className="font-bold text-white">Test Name</TableCell>
+                                                <TableCell className="font-bold text-white">Short Name</TableCell>
+                                                <TableCell className="font-bold text-white">Price</TableCell>
+                                                <TableCell className="font-bold text-white">Action</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {selectedTests.map(test => (
+                                                <TableRow key={test._id} className="hover:bg-gray-50">
+                                                    <TableCell>{test.templateName}</TableCell>
+                                                    <TableCell>{test.shortName}</TableCell>
+                                                    <TableCell>Rs. {test.price}</TableCell>
+                                                    <TableCell>
+                                                        <IconButton 
+                                                            onClick={() => handleRemoveTest(test._id)}
+                                                            className="text-red-500 hover:bg-red-50"
+                                                        >
+                                                            <DeleteIcon />
+                                                        </IconButton>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            )}
 
                             {/* Invoice Details */}
                             <div className="col-span-1 md:col-span-2 bg-white rounded-lg shadow-md p-6">
