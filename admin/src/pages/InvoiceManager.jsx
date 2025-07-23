@@ -194,6 +194,7 @@ const InvoiceManager = () => {
                             <TableRow>
                                 <TableCell>Invoice ID</TableCell>
                                 <TableCell>Date</TableCell>
+                                <TableCell>Tests</TableCell>
                                 <TableCell>Amount</TableCell>
                                 <TableCell>Payment Type</TableCell>
                                 <TableCell>Status</TableCell>
@@ -208,6 +209,11 @@ const InvoiceManager = () => {
                                         <TableCell>{invoice._id}</TableCell>
                                         <TableCell>
                                             {new Date(invoice.createdAt).toLocaleDateString()}
+                                        </TableCell>
+                                        <TableCell>
+                                            {invoice.testTemplates && invoice.testTemplates.length > 0
+                                                ? invoice.testTemplates.map(t => t.templateName).join(', ')
+                                                : 'N/A'}
                                         </TableCell>
                                         <TableCell>Rs. {invoice.amount}</TableCell>
                                         <TableCell>{invoice.paymentType}</TableCell>
@@ -296,6 +302,14 @@ const InvoiceManager = () => {
                             <Grid item xs={12}>
                                 <Typography variant="subtitle1">Notes:</Typography>
                                 <Typography>{selectedInvoice.notes || 'No notes'}</Typography>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <Typography variant="subtitle1">Tests:</Typography>
+                                <Typography>
+                                    {selectedInvoice && selectedInvoice.testTemplates && selectedInvoice.testTemplates.length > 0
+                                        ? selectedInvoice.testTemplates.map(t => t.templateName).join(', ')
+                                        : 'N/A'}
+                                </Typography>
                             </Grid>
                         </Grid>
                     )}

@@ -418,7 +418,7 @@ const CreateInvoice = () => {
 
             const invoiceData = {
                 userId,
-                testTemplateId: selectedTests[0]._id,
+                testTemplates: selectedTests.map(t => t._id),
                 paymentType: formData.paymentType,
                 amount: totalAmount,
                 payingAmount: payingAmount,
@@ -486,7 +486,7 @@ const CreateInvoice = () => {
             // First create the invoice
             const invoiceData = {
                 userId: formData.userId,
-                testTemplateId: selectedTests[0]._id,
+                testTemplates: selectedTests.map(t => t._id),
                 paymentType: formData.paymentType,
                 amount: calculateTotal(),
                 payingAmount: formData.payingAmount,
@@ -519,7 +519,7 @@ const CreateInvoice = () => {
             // First create the invoice
             const invoiceData = {
                 userId: formData.userId,
-                testTemplateId: selectedTests[0]._id,
+                testTemplates: selectedTests.map(t => t._id),
                 paymentType: formData.paymentType,
                 amount: calculateTotal(),
                 payingAmount: formData.payingAmount,

@@ -8,12 +8,9 @@ const invoiceSchema = new mongoose.Schema({
     },
     testTemplates: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'TestTemplate'
+        ref: 'TestTemplate',
+        required: true
     }],
-    testTemplateId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'TestTemplate'
-    },
     paymentType: {
         type: String,
         enum: ["Cash", "Card", "Bank Transfer", "Online Payment"],

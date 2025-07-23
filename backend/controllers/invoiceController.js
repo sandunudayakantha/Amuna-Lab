@@ -16,21 +16,8 @@ export const getInvoices = async (req, res) => {
     try {
         const invoices = await invoiceModel.find()
             .populate('userId', 'name email phone title gender age')
-            .populate('testTemplates', 'name price')
-            .populate('testTemplateId', 'name price');
-        
-        // Transform the data to ensure test details are available
-        const transformedInvoices = invoices.map(invoice => {
-            if (invoice.testTemplateId && (!invoice.testTemplates || invoice.testTemplates.length === 0)) {
-                return {
-                    ...invoice.toObject(),
-                    testTemplates: [invoice.testTemplateId]
-                };
-            }
-            return invoice;
-        });
-        
-        res.status(200).json(transformedInvoices);
+            .populate('testTemplates', 'templateName price');
+        res.status(200).json(invoices);
     } catch (error) {
         console.error('Error fetching invoices:', error);
         res.status(500).json({ message: error.message });
@@ -42,20 +29,11 @@ export const getInvoiceById = async (req, res) => {
     try {
         const invoice = await invoiceModel.findById(req.params.id)
             .populate('userId', 'name email phone title gender age')
-            .populate('testTemplates', 'name price')
-            .populate('testTemplateId', 'name price');
-            
+            .populate('testTemplates', 'templateName price');
         if (!invoice) {
             return res.status(404).json({ message: 'Invoice not found' });
         }
-        
-        // Transform the data to ensure test details are available
-        let transformedInvoice = invoice.toObject();
-        if (invoice.testTemplateId && (!invoice.testTemplates || invoice.testTemplates.length === 0)) {
-            transformedInvoice.testTemplates = [invoice.testTemplateId];
-        }
-        
-        res.status(200).json(transformedInvoice);
+        res.status(200).json(invoice);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -69,20 +47,11 @@ export const updateInvoice = async (req, res) => {
             req.body,
             { new: true, runValidators: true }
         ).populate('userId', 'name email phone title gender age')
-         .populate('testTemplates', 'name price')
-         .populate('testTemplateId', 'name price');
-        
+         .populate('testTemplates', 'templateName price');
         if (!updatedInvoice) {
             return res.status(404).json({ message: 'Invoice not found' });
         }
-        
-        // Transform the data to ensure test details are available
-        let transformedInvoice = updatedInvoice.toObject();
-        if (updatedInvoice.testTemplateId && (!updatedInvoice.testTemplates || updatedInvoice.testTemplates.length === 0)) {
-            transformedInvoice.testTemplates = [updatedInvoice.testTemplateId];
-        }
-        
-        res.status(200).json(transformedInvoice);
+        res.status(200).json(updatedInvoice);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -106,21 +75,8 @@ export const getInvoicesByUserId = async (req, res) => {
     try {
         const invoices = await invoiceModel.find({ userId: req.params.userId })
             .populate('userId', 'name email phone title gender age')
-            .populate('testTemplates', 'name price')
-            .populate('testTemplateId', 'name price');
-            
-        // Transform the data to ensure test details are available
-        const transformedInvoices = invoices.map(invoice => {
-            if (invoice.testTemplateId && (!invoice.testTemplates || invoice.testTemplates.length === 0)) {
-                return {
-                    ...invoice.toObject(),
-                    testTemplates: [invoice.testTemplateId]
-                };
-            }
-            return invoice;
-        });
-        
-        res.status(200).json(transformedInvoices);
+            .populate('testTemplates', 'templateName price');
+        res.status(200).json(invoices);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -131,18 +87,14 @@ export const updatePaymentStatus = async (req, res) => {
     try {
         const { amountPaid } = req.body;
         const invoice = await invoiceModel.findById(req.params.id);
-        
         if (!invoice) {
             return res.status(404).json({ message: 'Invoice not found' });
         }
-
         const remainingAmount = invoice.amount - amountPaid;
         let status = 'Paid';
-        
         if (remainingAmount > 0) {
             status = 'Partial';
         }
-
         const updatedInvoice = await invoiceModel.findByIdAndUpdate(
             req.params.id,
             {
@@ -151,16 +103,8 @@ export const updatePaymentStatus = async (req, res) => {
             },
             { new: true }
         ).populate('userId', 'name email phone title gender age')
-         .populate('testTemplates', 'name price')
-         .populate('testTemplateId', 'name price');
-         
-        // Transform the data to ensure test details are available
-        let transformedInvoice = updatedInvoice.toObject();
-        if (updatedInvoice.testTemplateId && (!updatedInvoice.testTemplates || updatedInvoice.testTemplates.length === 0)) {
-            transformedInvoice.testTemplates = [updatedInvoice.testTemplateId];
-        }
-
-        res.status(200).json(transformedInvoice);
+         .populate('testTemplates', 'templateName price');
+        res.status(200).json(updatedInvoice);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
